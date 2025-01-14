@@ -26,6 +26,7 @@
 \usepackage{ifthen}
 \usepackage{pgffor}
 \usepackage[outputdir=out]{minted}
+\usepackage{fontspec}
 
 \usepackage{xepersian}
 \settextfont{IRNazanin}

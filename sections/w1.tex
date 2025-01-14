@@ -631,3 +631,179 @@ find -type f -name "*.go" -exec grep -nH "TODO" {} \; | wc -l
 \subsubsection{x/oscar}
 یک پروژه خیلی جالب هست قراره \lr{maintain} کردن پروژه‌های اوپن سورس رو راحت تر کنه. با \lr{LLM} کار می‌کنه و قراره به اوپن سورس کمک کنه.
 خیلی چیزی نیست که جذب مشارکت داخلش بشم ولی بهرحال از پروژه‌هایی هست که درخواست مشارکت توش زیاد هست.
+
+\subsection{یکشنبه ۲۳ دی}
+سرم منگ هست انگار جنس زدم. انقدر گلوم درد میکنه که بیدار بودن سخت و خوابیدن غیر ممکن هست. ولی خب چه اهمیتی داره؟
+بازدهیم کمتره ولی کار میره جلو قطعا. خیلی کم دارم تلاش میکنم. باید یکم سعی کنم بیشتر کار کنم.
+
+انقدر امروز سرفه کردم و سرگیجه و گلودرد تحمل کردم که رسما کار خاصی از دستم بر نیومد. شاید در آخر این چند روز بیماری رو کلا از این خاطرات
+حذف کنم. شاید هم بذارم باشن. ولی خب به‌نظر نمیاد فردا هم خوب پیش بره. البته شاید هم امروز فقط غر زدم... دیگه توان من همنقدر بود.
+
+فعلا میخوام خیلی \lr{chill} بررسی کنم ببینم \lr{Change List} ها یا همون \lr{CL} هایی که به \lr{Gerrit} ارسال میشن وضعشون چطوره؟
+باید درست بررسی کنم در چه صورتی تغییراتی که ارسال میکنم رد میشن یا اوپن میمونن. چون دیروز خیلی گذرا دیدم بعضی از \lr{CL} ها و ایشو ها
+برای مدت خیلی زیادی باز میمونن. اصلا قشنگ نیست این اتفاق و باید بررسی کرد این موضوع رو.
+
+
+
+\section{هفته دوم}
+\subsection{دوشنبه ۲۴ دی}
+بله امروز دیگه قرار نیست از من غر بشنوید. میریم سراغ بررسی \lr{CL} ها.
+اول بریم سراغ مرج شده ها.
+
+\subsubsection{مرج شده ها}
+{\LARGE go/FIPS}
+
+اولین کامیت مرج شده ای که به چشمم خورد
+\LTRfootnote{\url{https://go-review.googlesource.com/c/go/+/639775}}
+راجع به اضافه کردن تست داخل زیرپوشه \lr{src/crypto/internal/} هست. اینکه چی هستن و چیکار میکنن مربوط FIPS
+\LTRfootnote{\lr{Federal Information Processing Standards}}
+هستند و یک سری استاندارد امنیتی هست که یکی از استاندارد های شناخته شدش \lr{FIPS 140} هست
+\LTRfootnote{\url{https://en.wikipedia.org/wiki/FIPS_140}}
+که مقوله جالبیه ولی الان فرصت ندارم زیاد راجع بهش بخونم. این داستان و \lr{CL} از یک ایشو که شبیه به یک پروپوزال هم هست شروع شده
+\LTRfootnote{\url{https://github.com/golang/go/issues/69642}}
+و همون رو آپدیت کرده. وقتی ایشو رو بررسی کنید اطلاعات جالبی پیدا میکنید. اول که مشکلاتی رو توضیح داده. بعد از اون میبینید که یه عالمه
+کامیت داشته که همین ایشو رو آپدیت میکنن. همین نشون میده ما میتونیم یه سری \lr{CL} ارسال کنیم که بخشی از نیاز یک ایشو رو صرفا انجام بده.
+
+از اونجایی که متن کامیت مهم هست میذارمش:
+
+\begin{latin}
+\begin{minted}[fontsize=\footnotesize,breaklines]{text}
+crypto/internal/fips140test: add hmac DRBG ACVP tests
+
+Adds ACVP test coverage for the hmacDRBG algorithm based on the NIST
+spec:
+  https://pages.nist.gov/ACVP/draft-vassilev-acvp-drbg.html#section-7.2
+
+The HMAC DRBG algorithm in our fips module is a minimal implementation
+tailored for use for generating ECDSA nonces and so lives in
+crypto/internal/fips140/ecdsa.
+
+In order to be testable by crypto/internal/fips140test this changeset
+exports a ecdsa.TestingOnlyNewDrbg() constructor to support the ACVP use-case.
+All FIPS-compatible SHA2 and SHA3 digests are tested.
+
+The ACVP capability registration is customized to match the limited
+capabilities of our ecdsa-focused impl. Most notably:
+
+  * reseedImplemented is false - we expect this impl to be invoked
+    only once or twice per instantiation and do not support explicit
+    reseeding.
+  * predResistanceEnabled is false - this requires reseeding.
+  * Per mode:
+    * derFuncEnabled is always false - this is only used by ctrDRBG.
+    * additionalInputLen is 0 for all modes - this is only used with
+      preResistanceEnabled.
+
+The other capability values are chosen based on Table 4:
+  https://pages.nist.gov/ACVP/draft-vassilev-acvp-drbg.html#section-7.4
+
+Updates #69642
+
+Change-Id: Ia58979d691f912e2ed739a05efb719f580fbbf89
+Reviewed-on: https://go-review.googlesource.com/c/go/+/639775
+Reviewed-by: Michael Pratt <mpratt@google.com>
+LUCI-TryBot-Result: Go LUCI <golang-scoped@luci-project-accounts.iam.gserviceaccount.com>
+Auto-Submit: Filippo Valsorda <filippo@golang.org>
+Reviewed-by: Dmitri Shuralyov <dmitshur@google.com>
+Reviewed-by: Filippo Valsorda <filippo@golang.org>
+\end{minted}
+\end{latin}
+
+نکات خوبی از همین کامیت مسیج میشه یاد گرفت. خط اول رو ببینید و البته لینک هایی که در ادامه گذاشته شدن. پایین تر هم مهم ترین نکته از نظر من
+همون \lr{Updates \#issue} هست. به‌نظرم خیلی مسئله مهمی هست. ریپو این پروژه هم که مشخصا \lr{go} بود.
+
+یک نکته دیگه ای که از این میشه متوجه شد، پروژه های اوپن سورس بخش های خیلی متنوعی دارن. برای کمک توشون باید یه تیکه خاص رو خیلی خوب
+عمیق بشیم و بعد بریم یاری برسونیم. مثلا اگه بخوام مشابه کار همین اقا رو انجام بدم باید بشینم استاندارد های مربوطه رو بخونم و کد بزنم.
+
+موضوع مهم دیگه ای که میشه بررسی کرد کامنت های \lr{Gerrit} هستن. از پایین کامنت ها رو دیدم واسه همین \lr{CL}. اول خب دوتا کامنت بود
+که یک سری مشکلات جالب و ساده رو ریپورت کرده بودن و فیکس شد. لحن جفتشون هم خیلی دوستانه و خوب بود.
+
+\begin{latin}
+\textbf{Filippo Valsorda(Maintainer):}
+
+TestingOnlyNewDRBG
+
+Acronyms go all in the same case as the first letter.
+
+\textbf{Daniel McCarney(Developer):}
+
+I swear I will remember this eventually :)
+
+Fixed in patchset 5. Thanks
+\end{latin}
+
+اون آقای \lr{Filippo} رو دیدم خیلی آدم خفنی بود. ۱۰ سال هست که طرف داخل تیم گو هست و کلی کار جالب درمورد رمزنگاری کرده.
+این مثلا منتور خوبی هست. جای نگرانی نبود تا رسیدم به کامنت بعدی. یک چیزایی راجع به چرخه رلیز گو
+\LTRfootnote{\url{https://go.dev/wiki/Go-Release-Cycle}}
+گفته بود که نخوندمش و الان میرم مطالعش می‌کنم. درواقع چرخه انتشار خود مخزن گو خیلی متفاوت هست با پکیج های دیگه اون.
+اینطور نیست که هر زمان سال که دوست داشتید تست ارسال کنید یا فیچر پیاده کنید. فعلا هم داخل دوره ای هستیم که فقط مستندسازی و فیکس کردن باگ
+های حساس پذیرفته میشه. حالا باز جلوتر راجع به این \lr{Go Release Cycle} صحبت می‌کنیم. البته که تو همون کامنت \lr{Filippo} توجیه کرد که نخیر این کامیت
+لازم هست و بدردمون میخوره. زود باش مرجش کن. و خب این شد که با پارتی بازی این کامیت مرج شد. البته ممکنه اشتباه متوجه شده باشم داستان رو.
+
+کاربری که این کامیت رو ارسال کرده هم توسعه دهنده خیلی باتجربه ای هست. از ۲۰۱۰ اکانت گیتهاب داره و البته ۱۳ تا کامیت مرج شده هم داره.
+به کارنامش که نگاه کنید میبینید مطالعه روی \lr{FIPS} و ساپورتش برای گو تو برنامه هاش هست. رسما واسه مشارکت موفق باید یک موضوع رو عمیق
+شد و مدت ها روش کار کرد. نمیشه همینطور هر ماه رفت موضوع جدید. پس همین بهم میگه قبل از شروع جدی باید یک چیزی رو پیدا کنم تا توش
+مدت ها مشارکت کنم. این مشارکت کننده اونقدر خفن نبود ولی میشه حتی بهش ایمیل زد و برای منتور شدن ازش سوال پرسید. این هم پلن جوابیه.
+با خفنا ایمیل بازی کنی و ازشون بخوای راهنماییت کنن.
+
+{\LARGE چرخه انتشار مخزن گو}
+
+مستند چرخه انتشار مخزن گو یا \lr{Go Release Cycle}
+\LTRfootnote{\url{https://go.dev/wiki/Go-Release-Cycle}}
+هست. من نمیخوام الان این مستند رو براتون ترجمه کنم. برید مطالعه کنید ولی چند نکته مهم رو میگم. اول اینکه گو هر شیش ماه رلیز داره
+و برای هر کدوم از این رلیز هاش حدودا ۵ ماه مخزن باز هست و اجازه هرطور مشارکتی رو میده و بعد ۲/۳ ماه فریز میشه. برای مثال همین الان
+برای رلیز زمستونی توی فریز هستیم و دست بنده برای مشارکت داخل مخزن گو و زیرمخزن هایی که وابستگی زیاد دارن یکم بسته میشه.
+زمانی که داخل فریز هستیم، تنها کامیت‌هایی که بهتره بگم \lr{CL} بهشون پذیرفته می‌شه باگ فیکس، تست و تغییر و اضافه کردن مستندات هستن.
+درواقع بعد از پروسه توسعه یک رلیز، یک مدت تیم گو میخوان از کیفیت رلیز مطمعن بشن و تو اون مدت فقط پروژه رو تست میکنن و باگ های مهم رو
+بررسی میکنن.
+
+حالا یک نکته کلیدی که اول مستند نوشته. آقا غیر از ایشو ها که میشه داخلشون اول مشکل رو شرح بدیم و بعد \lr{CL}  بفرستیم یه جای دیگه هم هست
+داخل \lr{google group} ها. داخل همین صفحه چرخه انتشار برید آدرس گوگل گروپ هست. پیام و سوال یا هرچیزی رو هم میتونید به ایمیل
+\href{conduct@golang.org}{conduct@golang.org}
+ارسال کنید و داخل همون گوگل گروپ لیست میشه. این لیست یکی از فایده هاش این هست که نمیخواد خودتون حساب کنید الان کجای \lr{Release Cycle}
+هستیم. البته که اصلا نمیتونید... به‌خاطر اینکه الزاما تاریخ ها مشخص نیستن و خیلی وقتا تقریب زده میشن. اینکه کی فریز داریم و کی رلیز داریم و این حرفا
+رو از همین گوگل گروپ میتونید دنبال کنید.
+البته از حق نگذریم گوگل گروپ خیلی خلوت هست اما حدس میزنم راحت جواب بگیره آدم ازش. بعد هم که ایشو میشه زد راحت. کلا مستقیم کد فرستادن
+زیاد باب میل نیست. مگر اینکه روی ایشو خاصی که قبلا کسی کار میکرده آپدیت یا فیکس انجام بدیم.
+
+نکته نهایی اینکه برای ابتدای کار ممکنه یکم مخزن گو از این بابت که الان تایم فریز هست سخت تر هم باشه. شمایی که قصد مشارکت دارید هم ممکنه
+وضعیت من رو داشته باشید. شروع از مخازن فرعی شاید راحت تر باشه. هرچند زیاد رضایت بخش نیست از نظر من.
+
+
+\LARGE{cmd/go}
+درفاصله نوشتن همین گزارش ها 18 کامیت دیگه مرج شدن. این نشون میده شانس مرج شدن خیلیه چون خیلی پیگیر هستن تیم توسعه گو.
+از این بابت خوشحالم. یعنی هر روز جواب میگیرم. هر روز میتونم تلاش کنم تا مشارکتم ثبت بشه.
+
+این یکی \lr{CL} خیلی نکته ای نداشت. ;کامیت و کامنت ها رو میذارم براتون.
+\begin{latin}
+\begin{minted}[fontsize=\footnotesize,breaklines]{text}
+cmd/go: check go version when parsing go.mod fails
+
+Fixes #70979
+
+Change-Id: I6597fe178eed34702eea6cba4eec5174c9203458
+Reviewed-on: https://go-review.googlesource.com/c/go/+/639115
+LUCI-TryBot-Result: Go LUCI <golang-scoped@luci-project-accounts.iam.gserviceaccount.com>
+Reviewed-by: Michael Matloob <matloob@golang.org>
+Reviewed-by: Michael Knyszek <mknyszek@google.com>
+
+--------------
+comments
+\textbf{Michael Knyszek}
+
+conservatively added the wait-release hashtag, but if this is safe to land for Go 1.24, feel free to remove it and submit. thanks.
+
+\textbf{Michael Matloob}
+
+I think this is safe. I'll remove the hashtag and submit. Thanks!
+
+\end{minted}
+\end{latin}
+
+یک نکته جالب بگم که \lr{CL} ها بر اساس حجمشون و تعداد خط کدی که کم و زیاد شده برچسب سایز دارن. این سایز ها هم مثل لباس هست.
+\lr{S, M, L, XS, XL}
+
+
+\subsection{سه‌شنبه ۲۵ دی}
+
+
