@@ -51,3 +51,5 @@
 
 \newcommand{\tftnt}[2]{\emph{\lr{#1}}\LTRfootnote{\lr{#2}}}
 \newcommand{\tfftnt}[2]{\emph{#1}\LTRfootnote{\lr{#2}}}
+
+\newcommand{\cl}{\lr{CL}}

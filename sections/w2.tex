@@ -1,0 +1,413 @@
+
+\section{هفته دوم}
+\subsection{دوشنبه ۲۴ دی}
+بله امروز دیگه قرار نیست از من غر بشنوید. میریم سراغ بررسی \cl ها.
+اول بریم سراغ مرج شده ها.
+
+\subsubsection{مرج شده ها}
+{\LARGE go/FIPS}
+
+اولین کامیت مرج شده ای که به چشمم خورد
+\LTRfootnote{\url{https://go-review.googlesource.com/c/go/+/639775}}
+راجع به اضافه کردن تست داخل زیرپوشه \lr{src/crypto/internal/} هست. اینکه چی هستن و چیکار میکنن مربوط FIPS
+\LTRfootnote{\lr{Federal Information Processing Standards}}
+هستند و یک سری استاندارد امنیتی هست که یکی از استاندارد های شناخته شدش \lr{FIPS 140} هست
+\LTRfootnote{\url{https://en.wikipedia.org/wiki/FIPS_140}}
+که مقوله جالبیه ولی الان فرصت ندارم زیاد راجع بهش بخونم. این داستان و \cl از یک ایشو که شبیه به یک پروپوزال هم هست شروع شده
+\LTRfootnote{\url{https://github.com/golang/go/issues/69642}}
+و همون رو آپدیت کرده. وقتی ایشو رو بررسی کنید اطلاعات جالبی پیدا میکنید. اول که مشکلاتی رو توضیح داده. بعد از اون میبینید که یه عالمه
+کامیت داشته که همین ایشو رو آپدیت میکنن. همین نشون میده ما میتونیم یه سری \cl ارسال کنیم که بخشی از نیاز یک ایشو رو صرفا انجام بده.
+
+از اونجایی که متن کامیت مهم هست میذارمش:
+
+\begin{latin}
+\begin{minted}[fontsize=\footnotesize,breaklines]{text}
+crypto/internal/fips140test: add hmac DRBG ACVP tests
+
+Adds ACVP test coverage for the hmacDRBG algorithm based on the NIST
+spec:
+  https://pages.nist.gov/ACVP/draft-vassilev-acvp-drbg.html#section-7.2
+
+The HMAC DRBG algorithm in our fips module is a minimal implementation
+tailored for use for generating ECDSA nonces and so lives in
+crypto/internal/fips140/ecdsa.
+
+In order to be testable by crypto/internal/fips140test this changeset
+exports a ecdsa.TestingOnlyNewDrbg() constructor to support the ACVP use-case.
+All FIPS-compatible SHA2 and SHA3 digests are tested.
+
+The ACVP capability registration is customized to match the limited
+capabilities of our ecdsa-focused impl. Most notably:
+
+  * reseedImplemented is false - we expect this impl to be invoked
+    only once or twice per instantiation and do not support explicit
+    reseeding.
+  * predResistanceEnabled is false - this requires reseeding.
+  * Per mode:
+    * derFuncEnabled is always false - this is only used by ctrDRBG.
+    * additionalInputLen is 0 for all modes - this is only used with
+      preResistanceEnabled.
+
+The other capability values are chosen based on Table 4:
+  https://pages.nist.gov/ACVP/draft-vassilev-acvp-drbg.html#section-7.4
+
+Updates #69642
+
+Change-Id: Ia58979d691f912e2ed739a05efb719f580fbbf89
+Reviewed-on: https://go-review.googlesource.com/c/go/+/639775
+Reviewed-by: Michael Pratt <mpratt@google.com>
+LUCI-TryBot-Result: Go LUCI <golang-scoped@luci-project-accounts.iam.gserviceaccount.com>
+Auto-Submit: Filippo Valsorda <filippo@golang.org>
+Reviewed-by: Dmitri Shuralyov <dmitshur@google.com>
+Reviewed-by: Filippo Valsorda <filippo@golang.org>
+\end{minted}
+\end{latin}
+
+نکات خوبی از همین کامیت مسیج میشه یاد گرفت. خط اول رو ببینید و البته لینک هایی که در ادامه گذاشته شدن. پایین تر هم مهم ترین نکته از نظر من
+همون \lr{Updates \#issue} هست. به‌نظرم خیلی مسئله مهمی هست. ریپو این پروژه هم که مشخصا \lr{go} بود.
+
+یک نکته دیگه ای که از این میشه متوجه شد، پروژه های اوپن سورس بخش های خیلی متنوعی دارن. برای کمک توشون باید یه تیکه خاص رو خیلی خوب
+عمیق بشیم و بعد بریم یاری برسونیم. مثلا اگه بخوام مشابه کار همین اقا رو انجام بدم باید بشینم استاندارد های مربوطه رو بخونم و کد بزنم.
+
+موضوع مهم دیگه ای که میشه بررسی کرد کامنت های \lr{Gerrit} هستن. از پایین کامنت ها رو دیدم واسه همین \cl. اول خب دوتا کامنت بود
+که یک سری مشکلات جالب و ساده رو ریپورت کرده بودن و فیکس شد. لحن جفتشون هم خیلی دوستانه و خوب بود.
+
+\begin{latin}
+\textbf{Filippo Valsorda(Maintainer):}
+
+TestingOnlyNewDRBG
+
+Acronyms go all in the same case as the first letter.
+
+\textbf{Daniel McCarney(Developer):}
+
+I swear I will remember this eventually :)
+
+Fixed in patchset 5. Thanks
+\end{latin}
+
+اون آقای \lr{Filippo} رو دیدم خیلی آدم خفنی بود. ۱۰ سال هست که طرف داخل تیم گو هست و کلی کار جالب درمورد رمزنگاری کرده.
+این مثلا منتور خوبی هست. جای نگرانی نبود تا رسیدم به کامنت بعدی. یک چیزایی راجع به چرخه رلیز گو
+\LTRfootnote{\url{https://go.dev/wiki/Go-Release-Cycle}}
+گفته بود که نخوندمش و الان میرم مطالعش می‌کنم. درواقع چرخه انتشار خود مخزن گو خیلی متفاوت هست با پکیج های دیگه اون.
+اینطور نیست که هر زمان سال که دوست داشتید تست ارسال کنید یا فیچر پیاده کنید. فعلا هم داخل دوره ای هستیم که فقط مستندسازی و فیکس کردن باگ
+های حساس پذیرفته میشه. حالا باز جلوتر راجع به این \lr{Go Release Cycle} صحبت می‌کنیم. البته که تو همون کامنت \lr{Filippo} توجیه کرد که نخیر این کامیت
+لازم هست و بدردمون میخوره. زود باش مرجش کن. و خب این شد که با پارتی بازی این کامیت مرج شد. البته ممکنه اشتباه متوجه شده باشم داستان رو.
+
+کاربری که این کامیت رو ارسال کرده هم توسعه دهنده خیلی باتجربه ای هست. از ۲۰۱۰ اکانت گیتهاب داره و البته ۱۳ تا کامیت مرج شده هم داره.
+به کارنامش که نگاه کنید میبینید مطالعه روی \lr{FIPS} و ساپورتش برای گو تو برنامه هاش هست. رسما واسه مشارکت موفق باید یک موضوع رو عمیق
+شد و مدت ها روش کار کرد. نمیشه همینطور هر ماه رفت موضوع جدید. پس همین بهم میگه قبل از شروع جدی باید یک چیزی رو پیدا کنم تا توش
+مدت ها مشارکت کنم. این مشارکت کننده اونقدر خفن نبود ولی میشه حتی بهش ایمیل زد و برای منتور شدن ازش سوال پرسید. این هم پلن جوابیه.
+با خفنا ایمیل بازی کنی و ازشون بخوای راهنماییت کنن.
+
+{\LARGE چرخه انتشار مخزن گو}
+
+مستند چرخه انتشار مخزن گو یا \lr{Go Release Cycle}
+\LTRfootnote{\url{https://go.dev/wiki/Go-Release-Cycle}}
+هست. من نمیخوام الان این مستند رو براتون ترجمه کنم. برید مطالعه کنید ولی چند نکته مهم رو میگم. اول اینکه گو هر شیش ماه رلیز داره
+و برای هر کدوم از این رلیز هاش حدودا ۵ ماه مخزن باز هست و اجازه هرطور مشارکتی رو میده و بعد ۲/۳ ماه فریز میشه. برای مثال همین الان
+برای رلیز زمستونی توی فریز هستیم و دست بنده برای مشارکت داخل مخزن گو و زیرمخزن هایی که وابستگی زیاد دارن یکم بسته میشه.
+زمانی که داخل فریز هستیم، تنها کامیت‌هایی که بهتره بگم \cl بهشون پذیرفته می‌شه باگ فیکس، تست و تغییر و اضافه کردن مستندات هستن.
+درواقع بعد از پروسه توسعه یک رلیز، یک مدت تیم گو میخوان از کیفیت رلیز مطمعن بشن و تو اون مدت فقط پروژه رو تست میکنن و باگ های مهم رو
+بررسی میکنن.
+
+حالا یک نکته کلیدی که اول مستند نوشته. آقا غیر از ایشو ها که میشه داخلشون اول مشکل رو شرح بدیم و بعد \cl  بفرستیم یه جای دیگه هم هست
+داخل \lr{google group} ها. داخل همین صفحه چرخه انتشار برید آدرس گوگل گروپ هست. پیام و سوال یا هرچیزی رو هم میتونید به ایمیل
+\href{conduct@golang.org}{conduct@golang.org}
+ارسال کنید و داخل همون گوگل گروپ لیست میشه. این لیست یکی از فایده هاش این هست که نمیخواد خودتون حساب کنید الان کجای \lr{Release Cycle}
+هستیم. البته که اصلا نمیتونید... به‌خاطر اینکه الزاما تاریخ ها مشخص نیستن و خیلی وقتا تقریب زده میشن. اینکه کی فریز داریم و کی رلیز داریم و این حرفا
+رو از همین گوگل گروپ میتونید دنبال کنید.
+البته از حق نگذریم گوگل گروپ خیلی خلوت هست اما حدس میزنم راحت جواب بگیره آدم ازش. بعد هم که ایشو میشه زد راحت. کلا مستقیم کد فرستادن
+زیاد باب میل نیست. مگر اینکه روی ایشو خاصی که قبلا کسی کار میکرده آپدیت یا فیکس انجام بدیم.
+
+نکته نهایی اینکه برای ابتدای کار ممکنه یکم مخزن گو از این بابت که الان تایم فریز هست سخت تر هم باشه. شمایی که قصد مشارکت دارید هم ممکنه
+وضعیت من رو داشته باشید. شروع از مخازن فرعی شاید راحت تر باشه. هرچند زیاد رضایت بخش نیست از نظر من.
+
+
+{\LARGE cmd/go}
+
+درفاصله نوشتن همین گزارش ها 18 کامیت دیگه مرج شدن. این نشون میده شانس مرج شدن خیلیه چون خیلی پیگیر هستن تیم توسعه گو.
+از این بابت خوشحالم. یعنی هر روز جواب میگیرم. هر روز میتونم تلاش کنم تا مشارکتم ثبت بشه.
+
+این یکی \cl خیلی نکته ای نداشت. ;کامیت و کامنت ها رو میذارم براتون.
+\begin{latin}
+\begin{minted}[fontsize=\footnotesize,breaklines]{text}
+cmd/go: check go version when parsing go.mod fails
+
+Fixes #70979
+
+Change-Id: I6597fe178eed34702eea6cba4eec5174c9203458
+Reviewed-on: https://go-review.googlesource.com/c/go/+/639115
+LUCI-TryBot-Result: Go LUCI <golang-scoped@luci-project-accounts.iam.gserviceaccount.com>
+Reviewed-by: Michael Matloob <matloob@golang.org>
+Reviewed-by: Michael Knyszek <mknyszek@google.com>
+
+--------------
+comments
+{\textbf Michael Knyszek}
+
+conservatively added the wait-release hashtag, but if this is safe to land for Go 1.24, feel free to remove it and submit. thanks.
+
+{\textbf Michael Matloob}
+
+I think this is safe. I'll remove the hashtag and submit. Thanks!
+
+\end{minted}
+\end{latin}
+
+یک نکته جالب بگم که \cl ها بر اساس حجمشون و تعداد خط کدی که کم و زیاد شده برچسب سایز دارن. این سایز ها هم مثل لباس هست.
+\lr{S, M, L, XS, XL}
+
+
+\subsection{سه‌شنبه ۲۵ دی}
+امیدوارم همتون همیشه سلامت باشید. بیماری کم کارم کرده و کم کاری اذیتم می‌کنه. بریم سراغ کار مون.
+\subsubsection{اوپن ها}
+خب تعداد اوپن ها خیلی زیاد هست. مثلا تو پروژه گو برای امروز یک مرج داشتیم و الباقی همشون اوپن بودن و رد شده که طبیعی هم هست.
+هرچقدر به قبل تر بریم تعداد مرج ها بیشتر میشن. به تاریخ های خیلی قبل تر که برید و مثلا ۲۰۰۰ \cl به قبل
+\LTRfootnote{\url{https://go-review.googlesource.com/q/project:go,2000}}
+رو بررسی کنید میبینید بهرحال یا رد شده یا مرج شده. پس جای خوشحالی هست که یک روزی بالاخره هر \cl ای پاسخ داده میشه
+و به مسیر درست هدایت میشه.
+البته اینکه یک \cl برای مثال یکی دو ماه باز بمونه و بلاتکلیف باشه هم غیر ممکن نیست.
+
+بیایید در ابتدا بررسی کنیم کدوم \cl ها بعد مدت زیادی بررسی میشن و درواقع رها میشن.
+
+اولین چیزی که به چشمم خورد این کامیت بود:
+\url{https://go-review.googlesource.com/c/go/+/602015}
+خب سایزش \lr{XS} هست و ۱۵۰۰ خط کد به کد گو اضافه کرده. به ایشو خاصی هم اشاره میکنه و متن کامیتش هم اوکی هست.
+کلا این \cl ماه ها معطل شده و خودش هم زیاد براش مهم نبوده گویا. ولی کلا دیدم ۲ تا مرج شده داره ۱۰ تای دیگه رو هوا هستن.
+دوتا مرج شدش هم مال مخزن \lr{benchmark} هست. من علتی که به ذهنم رسید انقدر دیر و بد کامیت هاش مرج شدن فقط بزرگ بودن کامیت بود.
+ایده دیگه ای ندارم. باید بیشتر کامیت بررسی کنم ببینم بقیه چیه قضیه شون.
+
+\subsection{چهارشنبه ۲۶ دی}
+بری سر کامیت های اوپن از قدیم. این کامیت که واقعا باید باز باشه. دوتا کامنت داره که جواب نداده و \lr{resolve} نکرده.
+و متن کامیت رو ببینید:
+
+\begin{latin}
+\url{https://go-review.googlesource.com/c/go/+/425875}
+
+\begin{minted}{text}
+Commit message:
+---------
+text/template: add "return" action
+
+For #53015
+
+Change-Id: I147cf4abec84d72a57436678b08c63c1de330e26
+\end{minted}
+\end{latin}
+
+این دوستمون که واقعا حقش بوده باز باشه \cl اش. تازه الان کانفلیکت هم داره.
+
+همین الان یک نکته. یک سری از \cl ها وقتی قدیمی می‌شن کلا مرج کانفلیکت پیدا میکنن تو فیلد های تغییرات \lr{LTP} یا \lr{Legacy TryBot Pass}
+که باید پاس بشه. اگر -۱ بگیره یعنی مرج کانفلیکت داریم و داستانه. پس خیلی از \cl های اوپن مشکل کانفلیکت دارن و صرفا کامنت هاشون رو جواب ندادن
+و پیگیر نبودن.
+
+مورد بعدی که دارم بررسی می‌کنم
+
+\begin{latin}
+\url{https://go-review.googlesource.com/c/go/+/600875}
+
+\begin{minted}[fontsize=\footnotesize,breaklines]{text}
+Commit message:
+---------
+runtime/cgo: Better Handle concurrency
+
+This change seeks to dramatically improve the performance of Handles in concurrent and non-concurrent settings. It does this through the use of
+atomics, slices, and locks.
+
+On my machine, I see 3-400% improvement over master, and a +/-20% increase over my previous commit.
+
+How it works:
+
+1. When creating new handles, we check a sync.Pool for any recent released indices
+2. If we have one, we use it, otherwise we start from the beginning of the slice -- to keep the slice compact and avoid growing
+3. If we reach the end of the slice, grow the slice by one element
+4. Otherwise, try and set the slice to the new value or increment our index by one
+5. Getting the value is somewhat trivial
+6. And finally, when we delete a handle, we release the index back into the sync.Pool to be reused
+
+Note that the sync.Pool is rather controversial as this would possibly be a BC break (previously, handles were monotonic). In this case, the
+memory efficiency may be worth it. However, if this isn't a good idea, we can sacrifice a bit of performance/complexity for monotonicity without
+giving up memory efficiency.
+
+Here are the benchmark results on my machine:
+goos: linux
+goarch: amd64
+pkg: runtime/cgo
+cpu: 11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz
+                         │  master.txt  │              worst.txt               │              best.txt               │
+                         │    sec/op    │    sec/op     vs base                │   sec/op     vs base                │
+Handle/non-concurrent-16   469.65n ± 3%   139.45n ± 6%  -70.31% (p=0.000 n=10)   98.77n ± 3%  -78.97% (p=0.000 n=10)
+Handle/concurrent-16        581.2n ± 3%    248.5n ± 3%  -57.24% (p=0.000 n=10)   104.1n ± 6%  -82.08% (p=0.000 n=10)
+geomean                     522.5n         186.2n       -64.37%                  101.4n       -80.59%
+
+best.txt: patch as-is (~O(1) freelist lookup)
+worst.txt: adding to sync.Pool is commented out during deletes, forcing an ~O(n) freelist lookup
+
+Change-Id: I0267b96807bf859967f3fbeac8081ea991da0713
+\end{minted}
+\end{latin}
+
+این بابا روی پرفرمنس یک تیکه کد کار کرده و خیلی اذیتش کردن. تهش هم مرج نشده هنوز. ولی ایشالله اقا خیلی که پیگیری کنه مرج میشه.
+یک کامنت خیلی آموزنده پیدا کردم میذارم اینجا. 
+\begin{latin}
+\textbf{Ian Lance Taylor:}
+
+Thanks. The preferred way to measure performance is run the benchmarks several times with, for example, -test.count=10. Run them with and without your change. Pass the old and new output to the golang.org/x/perf/cmd/benchstat program. Put the benchstat output in the change description. Thanks.
+\end{latin}
+راستی این مشارکت کننده اولین مشارکتش بوده. شاید طبیعی هست که انقدر اذیتش کردن.
+
+البته کلا بعضی از \cl ها رو میبینم نمیدونم چرا مرج نشدن. شاید باید کامنت بذاریم زیرشون و جویا بشیم که مرج کنید لطفا این بندگان خدارا.
+این هم ایده خوبی برای فعال بودن در کامیونیتی هست.حتما یک پست داخل گوگل گروپ می‌نویسم بپرسم اوکیه کامیت های قدیمی رو کامنت بذارم
+و مثلا \lr{maintainer} ها رو \lr{CC} کنم.
+
+\subsubsection{ریجکت شده ها}
+بررسی \lr{cl} های رد شده نیازی به بررسی زمانشون نداره. بریم اینا رو ببینیم.
+
+یک سری \lr{cl} های رد شده اصلا مال \lr{GerritBot} هست. 
+اینجا میبینیم که اصلا \lr{GerritBot} کامیت اشتباه کرده و برای همین رد شده.
+\begin{latin}
+\url{https://go-review.googlesource.com/c/go/+/638935}
+
+\begin{minted}{diff}
+diff --git a/src/database/sql/convert_test.go b/src/database/sql/convert_test.go
+index 1b2e61c..7cb8f317 100644
+--- a/src/database/sql/convert_test.go
++++ b/src/database/sql/convert_test.go
+@@ -32,7 +32,7 @@
+    wantint    int64
+    wantuint   uint64
+    wantstr    string
+-   wantbytes  []byte
++   wantbytes  []byte[just new white space]
+    wantraw    RawBytes
+    wantf32    float32
+    wantf64    float64
+@@ -67,7 +67,7 @@
+    return []conversionTest{
+        // Exact conversions (destination pointer type matches source type)
+        {s: "foo", d: &scanstr, wantstr: "foo"},
+-       {s: 123, d: &scanint, wantint: 123},
++       {s: 123, d: &scanint, wantint: 123},[just new white space]
+        {s: someTime, d: &scantime, wanttime: someTime},
+ 
+        // To strings
+\end{minted}
+\end{latin}
+انتهای خط مشخص کردم که صرفا یک اسپیس غیرضروری که اتفاقا باید پاک بشه اضافه کرده بود و برای همین رد شده. البته اون متن نبود و مشخصا
+یک اسپیس خالی بود.
+
+البته که \lr{GerritBot} صرفا \lr{Pull Request} خاصی داخل گیتهاب رو ارسال کرده این طرف! و خب این هم مشکل طرف بوده که فرستاده گیتهاب.
+پس جاهایی که میبینیم \lr{Owner} تغییرات \lr{GerritBot} هست همه از گیتهاب میان و داخل کامیت با تگ \lr{GitHub-Pull-Request} هم مشخص شده
+کدوم \lr{PR} بوده.
+
+یک آمار کلی گرفتم. ده درصد \cl های مرج شده از گیتهاب اومدن و تقریبا بیست درصد از \cl های رد شده هم مربوط به گیتهاب هستن.
+از گیتهاب \lr{PR} نفرستید دوستان زیاد باحال نیست. \lr{Workflow} پروژه استفاده از \lr{Gerrit} هست و حالا گیتهاب رو هم ساپورت کردن خوشحال باشیم
+ماهایی که تازه‌کار هستیم.
+
+ببینیم الباقی چیکار میکنن. یک \cl که باز هم از گیتهاب میاد
+\LTRfootnote{\url{https://go-review.googlesource.com/c/go/+/391835}}
+مربوط به این هست که فیچر اضافه کرده داخل \lr{exec.Command} که بیاد یه سری تغییر ایجاد کنه که برید ببینید. نهایتا تو کامنت ها اینطور بودن که
+کجا بدرد میخوره این؟ خب پس نمیتونیم بگیم آره من دوست دارم عملکرد فولان طور باشه. حتما باید یک جایی کاربرد معرفی کنیم ازش.
+
+این دوستمون
+\LTRfootnote{\url{https://go-review.googlesource.com/c/go/+/639956}}
+سعی کرده یک جا به جای استفاده از \lr{bool} از \lr{struct} استفاده کنه و مثلا یک مقدار در مموری صرف جویی کنه. و خب بدون هیچ کامنتی و توضیحی
+تغییراتش رد شده. البته در نهایت داخل لاگ ها علت رد شدن نوشته میشه همیشه که این رو تازه دیدم. بذارید کامنت طرف رو بذارم براتون. بله قطعا
+در مقابل سادگی اون یه ذره حافظه بی ارزش هست. این هم آموزنده بود. پس سادگی برای تیم گو میتونه خیلی مهم تر از این حرفا باشه.
+
+\begin{latin}
+\textbf{Jakub Ciolek:}
+
+Abandoned
+
+The original is simpler, not worth the churn.
+\end{latin}
+
+یک \cl دیگه دیدم که خود توسعه دهنده بسته بود.
+\LTRfootnote{\url{https://go-review.googlesource.com/c/go/+/624775}}
+خب جالبه توضیحی هم نداده. البته بعد از یک ماه بسته بود... خب شاید بهش بر خورده. کی میدونه؟ یک سری از \lr{cl} ها رو کلا خود توسعه دهنده ها
+تشخیص میدن بدرد نمیخورن و خودشون می‌بندن. حتی دیدم بعضا داخل خود تیم گو بودن و خودشون هم این کار رو انجام داده بودن و رد کرده بودن.
+البته نکته ای که واقعا هست اینه که لیست تغییرات پر از مرج شده ها و اوپن ها هستن. واقعا \cl هایی که رد میشن خیلی کم هستن و همین خوشحال کنندست.
+
+با بررسی پروژه های دیگه متوجه شدم خب کم و بیش داخلشون اکتیو هست. اما احتمالا برای هرکدوم \cl  ارسال بشه بررسی میکنن. در ابتدا میخوام
+همون مشارکت های ساده رو روی پروژه های ساده تر این تیم داشته باشم تا دستم بیاد درست اخلاقیاتشون رو.
+
+\subsection{تسک های جدید برای اولین مشارکت!}
+
+\begin{itemize}
+\item
+بررسی مخازن با دستور \lr{go vet} اون هم با آخرین ورژن گو
+\item
+فیکس کردن مشکل و پرکتیس ها و مطالعه راجع بهشون
+\item
+ایمیل زدن داخل گو گروپ و پرسجو راجع به اینکه این مشکل رو باید ایشو زد؟ بعد از هماهنگی اینجا \cl ارسال کرد یا چی؟
+\item
+ادامه گفت‌وگوها در \lr{Gerrit}
+\item
+مرج شدن و شادی
+\end{itemize}
+
+بدون صحبت بریم سراغ کار!
+
+\subsubsection{بررسی مخازن با دستور \lr{go vet} اون هم با آخرین ورژن گو}
+با اسکریپت زیر شروع کردم به ثبت تمام مشکلات جزئی. بعد چند مرج اولم این فایل رو ایشو میکنم و میگم سوتونا بریزید همه باهم فیکس کنیم.
+
+\begin{latin}
+\begin{minted}{bash}
+GO=/src/go/bin/go
+for d in $(ls -d */); do
+    cd $d
+    echo ============== $d ============== >> ../vets.txt
+    $GO vet  -all ./... 2>> ../vets.txt
+    cd -
+done
+\end{minted}
+\end{latin}
+
+از بروز ترین کامپایلر گو و درواقع آخرین نسخه دارم استفاده می‌کنم.
+
+از این بین من مشکلات مخزن \lr{benchmark} به چشمم خورد. کم و جالب هست.
+
+\begin{latin}
+\begin{minted}[fontsize=\footnotesize,breaklines]{text}
+# golang.org/x/benchmarks/driver
+driver/driver.go:375:2: unreachable code
+driver/driver.go:376:2: unreachable code
+# golang.org/x/benchmarks/third_party/biogo-examples/igor/igor
+third_party/biogo-examples/igor/igor/cluster.go:51:9: github.com/biogo/store/interval.IntRange struct literal uses unkeyed fields
+# golang.org/x/benchmarks/sweet/benchmarks/biogo-igor
+# [golang.org/x/benchmarks/sweet/benchmarks/biogo-igor]
+sweet/benchmarks/biogo-igor/igor.go:68:30: golang.org/x/benchmarks/third_party/biogo-examples/igor/igor.GroupConfig struct literal uses unkeyed fields
+\end{minted}
+\end{latin}
+
+یک یا دوتا از همین موارد حل بشن هم خوب هست برای شروع. رفع این خطا ها بسیار آسان است و اگر مشارکت های کوچک به همین اندازه ساده باشه تعداد زیادی انجام میدم.
+اولین \cl من
+\LTRfootnote{\url{https://go-review.googlesource.com/c/benchmarks/+/642895}}
+ارسال شد و الان احساس هیجان زیادی دارم. تو بخش \lr{Change Log} اولین پیامم رو دریافت کردم که میذارم براتون.
+
+\begin{latin}
+\begin{minted}{text}
+Congratulations on opening your first change. Thank you for your contribution!
+
+Next steps:
+A maintainer will review your change and provide feedback. See
+https://go.dev/doc/contribute#review for more info and tips to get your
+patch through code review.
+
+Most changes in the Go project go through a few rounds of revision. This can be
+surprising to people new to the project. The careful, iterative review process
+is our way of helping mentor contributors and ensuring that their contributions
+have a lasting impact.
+\end{minted}
+\end{latin}
+
+چشم آقای گوفر مهربون. البته یکم من سرسری ارسال کردم. بهتر بود جزئیات بیشتری راجع به تغییراتی که دادم میدادم.
+ اگر خواستن، عوض میکنم حالا و در آینده بیشتر این کار رو انجام میدم.
+فعلا نباید انتظار داشته باشم در لحظه اتفاقی بیوفته و میتونم تا فردا صبر کنم. اینطور تغییرات حداقل چند ساعت طول میکشه تا بررسی و مرج بشن.
+
+یک مورد خیلی باحال. وقتی مثل من یک فرق غریبه هستید برای توسعه دهنده های گو، طول میکشه تا بررسی کنن \cl ات رو.
+اما کسایی داخل خود تیم گو هستن و ایمیلشون مال گوگل یا گولنگ هست خیلی زود بررسی میشن و حتی مرج میشن.
+البته این فرایند بسیار منطقی و طبیعی است. میرم کتاب هایی که نخوندم رو شروع میکنم به مطالعه تا کدم بررسی بشه.
+
