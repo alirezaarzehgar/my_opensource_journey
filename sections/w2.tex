@@ -411,3 +411,60 @@ have a lasting impact.
 اما کسایی داخل خود تیم گو هستن و ایمیلشون مال گوگل یا گولنگ هست خیلی زود بررسی میشن و حتی مرج میشن.
 البته این فرایند بسیار منطقی و طبیعی است. میرم کتاب هایی که نخوندم رو شروع میکنم به مطالعه تا کدم بررسی بشه.
 
+\subsection{جمعه ۲۸ دی}
+بعد از ۲۷ ساعت \cl من مرج شد و الان داخل مخزن benchmarks مشارکت دارم. بتونم چند تا کامیت دیگه روی همین مخزن داشته باشم
+بدک نیست. میام بالاتر. چون تعداد مشارکت کننده هاش کمتر هست راحت میشه رفت تو چارت بهترین توسعه دهنده هاش.
+البته که میتونه پروژه بی مصرف و بدرد نخوری به حساب بیاد.
+
+فعلا میخوام چند تا \cl دیگه از همین سبک ارسال کنم. چطوره هرچی \lr{go vet} ارور میده رو ساکت کنیم؟ لیست \cl هام رو میذارم پایین.
+\begin{latin}
+\url{https://go-review.googlesource.com/c/arch/+/642738}
+\end{latin}
+این \cl بعد از یکونیم ساعت به درستی مرج شد و خیلی سریع و عالی پیش رفت. مسیر فیکس کردن وارنینگ ها خیلی راحته کلا.
+انگیزه و توانایی فیکس کردن باقیشون رو دارم. اما تنها امیدم به این هست که یکی این متن ها رو بخونه و بتونه یک مشارکت داشته باشه
+و راهش رو شروع کنه. خب الگوریتم خیلی راحته. برای تمام پروژه‌ها \lr{go vet -all ./...} رو اجرا کن، برو داخل مخزنی که میخوای و
+فیکس کن همه چیز رو بعد هم بفرست کد رو و قطعا مرج میشه.
+
+یک ایشو
+\LTRfootnote{\url{https://github.com/golang/go/issues/71306}}
+درست کردم و داخلش ریپورت \lr{go vet} رو برای خود مخزن گو گذاشتم.
+
+
+\begin{latin}
+\begin{minted}{bash}
+go vet -all ./...
+
+# crypto/internal/fips140test
+# [crypto/internal/fips140test]
+crypto/internal/fips140test/check_test.go:89:18: possible misuse of unsafe.Pointer
+crypto/internal/fips140test/check_test.go:111:23: possible misuse of unsafe.Pointer
+crypto/internal/fips140test/check_test.go:117:19: possible misuse of unsafe.Pointer
+# internal/abi
+# [internal/abi]
+internal/abi/escape.go:21:9: possible misuse of unsafe.Pointer
+# internal/runtime/atomic_test
+# [internal/runtime/atomic_test]
+internal/runtime/atomic/atomic_test.go:101:7: possible misuse of unsafe.Pointer
+# reflect
+# [reflect]
+reflect/type.go:2245:35: possible misuse of unsafe.Pointer
+# reflect_test
+# [reflect_test]
+reflect/all_test.go:8632:18: possible misuse of unsafe.Pointer
+# runtime
+# [runtime]
+runtime/alg.go:39:22: possible misuse of unsafe.Pointer
+runtime/arena.go:487:10: possible misuse of unsafe.Pointer
+runtime/arena.go:492:10: possible misuse of unsafe.Pointer
+runtime/arena.go:768:7: possible misuse of unsafe.Pointer
+runtime/arena.go:780:14: possible misuse of unsafe.Pointer
+runtime/arena.go:785:14: possible misuse of unsafe.Pointer
+runtime/arena.go:792:14: possible misuse of unsafe.Pointer
+\end{minted}
+\end{latin}
+
+بخشیش رو اینجا گذاشتم. خب تنها اروری که وجود داره \lr{possible misuse of unsafe.Pointer} هست که گزارش دادم. در پاسخ هم ایشو من
+به عنوان \lr{duplicated} بسته شد. اطلاعات رو از داخل خود ایشو بررسی کنید. ولی توضیحش رو میدم. درواقع این وارنینگ \lr{false positive} هست.
+هیچ مشکلی با کد نیست ولی بیخودی ارور میده. بعضی اوقات \lr{vet} چرتوپرت میگه. و این مشکلیه که داخلش حل نشده.
+
+
