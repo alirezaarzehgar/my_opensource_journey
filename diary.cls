@@ -53,3 +53,9 @@
 \newcommand{\tfftnt}[2]{\emph{#1}\LTRfootnote{\lr{#2}}}
 
 \newcommand{\cl}{\lr{CL}}
+
+\newcommand{\lurl}[1]{
+	\begin{latin}
+		\url{#1}
+	\end{latin}
+}
