@@ -63,3 +63,86 @@
 باید چک کرد. بعد هم که یه عالمه کامیت از این و اون نگاه کردم و ایشو مختلف. خلاصه امروزم اینطوری رفت.
 
 فعلا تا صحبت های دیگه.
+
+\subsection{شنبه ۱۱ اسفند}
+خب باز بعد مدت ها اومدم مشارکت کنم. هفته گذشته درگیر ارائم تو مشهدلاگ بودم که این زیاد چیز خوبی نیست. باید منظم تر باشم
+درمورد مشارکت هام. امروز هم به حدی کمردرد دارم که نمیدونم کلاس سیگنال عصر رو بپیچونم یا خیر. بهرحال خیلی دارم درد میکشم. انقدر که
+قیافم دقیقا شبیه به وحشی ها شده.
+
+ایشوهای گولنگ رو باز کردم و اولین چیزی که دیدم راجع به یک \lr{test failure} بود.
+\LTRfootnote{https://github.com/golang/go/issues/71181}
+تا امروز ساعت پنج همون رو بررسی خواهم کرد و بعد هم پیگیرش
+میشم ببینم میشه این رو فیکس کرد یا خیر.
+
+بعد از بررسی این ایشو دیدم که اصلا پلتفرمی که تست روش \lr{fail} شده \lr{netbsd-arm64} هست. به‌نظر نمیتونم زیاد روش کار کنم چون نه
+سخت افزارش رو دارم نه سیستم عاملش رو. تست هم روی سیستم من اوکی بود و بدون مشکل پاس شد. میرم سراغ موارد دیگه.
+
+یک ایشو جالب
+\LTRfootnote{https://github.com/golang/go/issues/69781}
+راجع به \lr{OpenBSD} پیدا کردم که مایلم فیکسش کنم ولی الان خیلی گیج هستم. گفتم چطوره برم کمک بگیرم از آدم های همونجا.
+همچین چیزی رو در این ایشو کامنت گذاشتم:
+
+\begin{latin}
+Hey, why is this issue still open? I want to help with the Go project. How can I fix this issue?
+I need some guidance on researching and trying to resolve it. However, I have time to do R\&D and learn about my task.
+
+My goal is to actively contribute to Go, and I am willing to learn the necessary technical skills. Thank you for your time and attention
+\end{latin}
+
+گذاشتن این کامنت به‌نظرم شجاعت میخواد. وای قراره چی بگن بهم و چه بلایی سرم در بیارن:) ولی خب مطمعنم فیدبک های جالب و آموزنده ای میگیرم.
+قطعا یاد میگیرم از هر جوابی که بدن. فعلا با هر دردی که شده میرم دانشگاه و زمانی که برگشتم بررسی می‌کنم. فکر کنم کم کم باید ایمیل بدم راهنمایی
+بخوام.
+
+استاد مسخرمون کرد و کلاس کنسل شد و با تمام بدن دردی که رفتم سر کلاس با اعصاب خوردی بیشتر برگشتم خونه و فقط چند ساعت اتلاف وقت
+به برنامم اضافه شد. هنوز هم کسی در اون ایشو جوابی بهم نداده. پلن امشبم این هست که یک ایمیل درست درمون بنویسم و از یک سری از خوب ها
+راهنمایی بخوام که چطور میتونم مسیر خودم رو شروع کنم. میخوام این ایمیل رو داخل \lr{golang-dev} پست کنم و خوب ها رو هم \lr{cc} کنم.
+
+ایمیل پایین رو به گوگل گروپ \lr{golang-dev} ارسال کردم:
+
+\begin{latin}
+SUBJECT: Request for Guidance on Contributing to the Go Project
+
+BODY:
+
+Dear Go Developers,
+
+I am eager to become an open-source contributor to the Go project.
+While I know that many people explore the Go source code and
+make minor changes or fix comments, I am looking to make more substantial contributions
+that are effective, and beneficial to the Go community.
+
+I am unsure how to start working on an issue. Which issues are suitable for beginners?
+Are there specific modules or packages that need assistance, where I could contribute?
+Should I explore the source code to identify problems to report and submit CLs?
+I feel that this approach may not align with how experienced developers typically contribute.
+I want to act as a genuine developer with a clear goal of advancing the Go project.
+However, I am uncertain about where to begin and which areas of the codebase require my efforts.
+Should I focus on learning about sorting algorithms and exploring the standard library to enhance functions,
+or should I delve into cryptography and examine related packages?
+
+I acknowledge that I am new to this level of development, but I am motivated and confident in my abilities.
+I understand that my request may come across as presumptuous, but I am seeking a roadmap
+to help me make meaningful contributions. I would appreciate any tasks or guidance you could provide.
+I am committed to contributing for the long term and can dedicate time every day.
+I am willing to read any technical materials or books that may be recommended.
+
+I am here for open source, and I would greatly appreciate your assistance
+in helping me become a valuable member of this community.
+ My GitHub username is alirezaarzehgar, and my general resume can be found here.
+
+Thank you for your time, attention, and consideration.
+
+Best regards,
+
+Alireza Arzehgar
+\end{latin}
+
+حالا عجیبه همون اول انگار داخل گوگل گروپ نرفته. باید یکم دیگه چک کنم ببینم اضافه شده داخل لیست یا خیر. یه طور غریبی چیزی نیست که 
+فکر می‌کنم یا قراره برای اولین پیامم داخل گروه بررسی بشم که اسپم نباشم، یا اشتباه ارسال کردم و نیاز هست دوباره اینکار رو انجام بدم. عرف این روند
+یک ربع هست. بهرحال نیم ساعت صبر می‌کنم ببینم خبری میشه یا نه. اگر نشد فوقش دوباره ارسال می‌کنم.
+
+خب حماقت کردم و دوباره پستم رو ارسال کردم. دیدم نیاز به \lr{Approve} شدن داره. شما همچین کاری نکنید یک وقت. پس اولین پست یا احتمالا
+هر پستی که داخل \lr{golang-dev} می‌فرستید نیاز هست یکی تاییدش کنه. باید صبر کنیم تا \lr{Roadmap} بگیریم. حالا فکر کن طرف تایید نکنه. عالی میشه.
+
+امروز به همین فعالیت کم غناعت می‌کنم و صبر می‌کنم تا فردا.
+
