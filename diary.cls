@@ -25,11 +25,17 @@
 \usepackage{xurl}
 \usepackage{ifthen}
 \usepackage{pgffor}
-\usepackage[outputdir=out]{minted}
+\usepackage{minted}
 \usepackage{fontspec}
 
 \usepackage{xepersian}
-\settextfont{IRNazanin}
+\settextfont{IRNazanin}[
+  Extension=.ttf,
+  BoldFont=*Bold,
+  ItalicFont=*Italic,
+  BoldItalicFont=*Bold,
+  Path=fonts/
+]
 
 \setcounter{secnumdepth}{4}
 \setcounter{tocdepth}{4}
