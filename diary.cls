@@ -25,7 +25,7 @@
 \usepackage{xurl}
 \usepackage{ifthen}
 \usepackage{pgffor}
-\usepackage{minted}
+\usepackage[outputdir=out]{minted}
 \usepackage{fontspec}
 
 \usepackage{xepersian}
